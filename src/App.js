@@ -7,7 +7,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { ApolloProvider } from "@apollo/client";
 
 import HomeScreen from "./screens/HomeScreen";
-import ProfileScreen from "./screens/ProfileScreen";
+import ChatScreen from "./screens/ChatScreen";
 
 import client from "./apollo/client";
 
@@ -21,10 +21,14 @@ const App = () => {
           <Stack.Screen
             name="Home"
             component={HomeScreen}
-            options={{ title: "Profil" }}
+            options={{ title: "Chatly rooms" }}
           />
 
-          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen
+            name="Chat"
+            component={ChatScreen}
+            options={{ title: "Chat room" }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </ApolloProvider>

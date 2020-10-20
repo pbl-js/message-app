@@ -1,8 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { Text, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Text, View, TouchableOpacity } from "react-native";
 
-const MainWrapper = styled.View`
+const MainWrapper = styled.TouchableOpacity`
   padding: 30px;
   background-color: white;
   border-radius: 20px;
@@ -10,8 +11,12 @@ const MainWrapper = styled.View`
 `;
 
 const RoomItem = ({ roomData }) => {
+  const navigation = useNavigation();
+
   return (
-    <MainWrapper>
+    <MainWrapper
+      onPress={() => navigation.navigate("Chat", { roomId: roomData.id })}
+    >
       <Text>{roomData.name}</Text>
     </MainWrapper>
   );

@@ -8,12 +8,13 @@ const MainWrapper = styled.View`
   justify-content: center;
 `;
 
-const ProfileScreen = () => {
+const ChatScreen = ({ route }) => {
   return (
     <MainWrapper>
-      <Text>Nothing</Text>
+      <Text>ChatScreen</Text>
+      <Text>{route.params.roomId}</Text>
     </MainWrapper>
   );
 };
 
-export default ProfileScreen;
+export default ChatScreen;
