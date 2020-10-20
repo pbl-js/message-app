@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "rn-first-app",
+    "entryPoint": "./src/App.js",
     "slug": "rn-first-app",
     "version": "1.0.0",
     "orientation": "portrait",
