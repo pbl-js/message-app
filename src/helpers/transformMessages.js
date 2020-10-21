@@ -7,7 +7,6 @@ export default (messages) => {
       user: {
         _id: message.user.id,
         name: `${message.user.firstName} ${message.user.lastName}`,
-        avatar: "https://placeimg.com/140/140/any",
       },
     };
   });
