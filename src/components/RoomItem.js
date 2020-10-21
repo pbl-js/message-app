@@ -14,9 +14,7 @@ const RoomItem = ({ roomData }) => {
   const navigation = useNavigation();
 
   return (
-    <MainWrapper
-      onPress={() => navigation.navigate("Chat", { roomId: roomData.id })}
-    >
+    <MainWrapper onPress={() => navigation.navigate("Chat", roomData)}>
       <Text>{roomData.name}</Text>
     </MainWrapper>
   );

@@ -16,7 +16,6 @@ export const USERS_ROOMS = gql`
 
 const RoomsList = () => {
   const { loading, error, data } = useQuery(USERS_ROOMS);
-  data && console.log(data.usersRooms.rooms);
 
   if (loading) return <Text>{"Loading..."}</Text>;
   if (error) return <Text>{`Error! ${error.message}`}</Text>;
@@ -24,7 +23,7 @@ const RoomsList = () => {
   return (
     <FlatList
       data={data.usersRooms.rooms}
-      renderItem={({ item }) => <RoomItem roomData={item} />}
+      renderItem={({ item }) => <RoomItem roomData={item} key={item.id} />}
     />
   );
 };
