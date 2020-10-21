@@ -1,7 +1,6 @@
 import "react-native-gesture-handler";
 import { registerRootComponent } from "expo";
 import React from "react";
-import { StyleSheet, Text, View, Button, ScrollView } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { ApolloProvider } from "@apollo/client";

@@ -1,21 +1,12 @@
 import React from "react";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery } from "@apollo/client";
+import { GET_USERS_ROOMS } from "../apollo/queries/getUsersRooms";
+
 import { FlatList, Text } from "react-native";
 import RoomItem from "./RoomItem";
 
-export const USERS_ROOMS = gql`
-  query GetUserRooms {
-    usersRooms {
-      rooms {
-        id
-        name
-      }
-    }
-  }
-`;
-
 const RoomsList = () => {
-  const { loading, error, data } = useQuery(USERS_ROOMS);
+  const { loading, error, data } = useQuery(GET_USERS_ROOMS);
 
   if (loading) return <Text>{"Loading..."}</Text>;
   if (error) return <Text>{`Error! ${error.message}`}</Text>;

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { useNavigation } from "@react-navigation/native";
-import { Text, View, TouchableOpacity } from "react-native";
+import { Text } from "react-native";
 
 const MainWrapper = styled.TouchableOpacity`
   padding: 30px;

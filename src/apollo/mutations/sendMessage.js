@@ -1,6 +1,6 @@
-import { gql } from "@apollo/client";
+import { useMutation, gql } from "@apollo/client";
 
-const SEND_MESSAGE = gql`
+export const SEND_MESSAGE = gql`
   mutation SendMessage($body: String!, $roomId: ID!) {
     sendMessage(body: $body, roomId: $roomId) {
       body
@@ -16,4 +16,36 @@ const SEND_MESSAGE = gql`
   }
 `;
 
-export default SEND_MESSAGE;
+export const useSendMessage = (text, roomId) => {
+  const [sendMessage, { data }] = useMutation(SEND_MESSAGE, {
+    variables: { body: text, roomId },
+    update(cache, { data: { sendMessage } }) {
+      cache.modify({
+        id: cache.identify(roomId),
+        fields: {
+          messages(existingMessages) {
+            const newMessage = cache.writeFragment({
+              data: sendMessage,
+              fragment: gql`
+                fragment Message on RoomType {
+                  id
+                  body
+                  insertedAt
+                  user {
+                    id
+                    firstName
+                    lastName
+                  }
+                }
+              `,
+            });
+
+            return [newMessage, ...existingMessages];
+          },
+        },
+      });
+    },
+  });
+
+  return [sendMessage, data];
+};

@@ -1,68 +1,44 @@
-import React, { useState, useCallback } from "react";
-import { useQuery, useMutation, gql } from "@apollo/client";
-import { GiftedChat } from "react-native-gifted-chat";
+import React from "react";
+import { useQuery } from "@apollo/client";
 
-import SEND_MESSAGE from "../apollo/mutations/sendMessage";
-import GET_ROOM from "../apollo/queries/getRoom";
-import transformMessages from "../helpers/transformMessages";
+import { GET_ROOM } from "../apollo/queries/getRoom";
+import MESSAGES_SUBSCRIPTION from "../apollo/subscriptions/messagesSubscriptions";
+
+import { Text } from "react-native";
+import Chat from "../components/Chat";
 
 function ChatScreen({ route }) {
   const { id } = route.params;
 
-  // Get room
-  const { data } = useQuery(GET_ROOM, {
+  const { subscribeToMore, data, loading, error } = useQuery(GET_ROOM, {
     variables: { id },
   });
-  const messages = data && transformMessages(data.room.messages);
 
-  // Send message
-  const [text, setText] = useState("");
+  const roomData = data && data.room;
 
-  const [sendMessage, { data: newMessageData }] = useMutation(SEND_MESSAGE, {
-    variables: { body: text, roomId: id },
-    update(cache, { data: { sendMessage } }) {
-      cache.modify({
-        id: cache.identify(data.room),
-        fields: {
-          messages(existingMessages) {
-            const newMessage = cache.writeFragment({
-              data: sendMessage,
-              fragment: gql`
-                fragment Message on RoomType {
-                  id
-                  body
-                  insertedAt
-                  user {
-                    id
-                    firstName
-                    lastName
-                  }
-                }
-              `,
-            });
-
-            return [newMessage, ...existingMessages];
-          },
-        },
-      });
-    },
-  });
-
-  const onSend = useCallback(() => {
-    sendMessage();
-  }, []);
+  if (loading) return <Text>{"Loading..."}</Text>;
+  if (error) return <Text>{`Error! ${error.message}`}</Text>;
 
   return (
-    <GiftedChat
-      messages={messages}
-      text={text}
-      onInputTextChanged={(text) => setText(text)}
-      onSend={(messages) => onSend(messages)}
-      user={
-        data && {
-          _id: data.room.user.id,
-        }
-      }
+    <Chat
+      roomData={roomData}
+      subscribeToNewMessages={() => {
+        subscribeToMore({
+          document: MESSAGES_SUBSCRIPTION,
+          variables: { roomId: id },
+          updateQuery: (prev, { subscriptionData }) => {
+            if (!subscriptionData.data) return prev;
+
+            const newMessageItem = subscriptionData.data.messageAdded;
+
+            return Object.assign({}, prev, {
+              room: {
+                messages: [newMessageItem, ...prev.room.messages],
+              },
+            });
+          },
+        });
+      }}
     />
   );
 }

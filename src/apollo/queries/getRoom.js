@@ -1,9 +1,10 @@
 import { gql } from "@apollo/client";
 
-const ROOM = gql`
+export const GET_ROOM = gql`
   query GetRoom($id: ID!) {
     room(id: $id) {
       id
+      name
       messages {
         id
         body
@@ -22,5 +23,3 @@ const ROOM = gql`
     }
   }
 `;
-
-export default ROOM;
