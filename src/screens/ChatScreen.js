@@ -1,64 +1,62 @@
 import React, { useState, useCallback } from "react";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery, useMutation, gql } from "@apollo/client";
 import { GiftedChat } from "react-native-gifted-chat";
 
-export const ROOM = gql`
-  query GetRoom($id: ID!) {
-    room(id: $id) {
-      id
-      messages {
-        id
-        body
-        insertedAt
-        user {
-          id
-          firstName
-          lastName
-        }
-      }
-      user {
-        firstName
-        lastName
-        id
-      }
-    }
-  }
-`;
+import SEND_MESSAGE from "../apollo/mutations/sendMessage";
+import GET_ROOM from "../apollo/queries/getRoom";
+import transformMessages from "../helpers/transformMessages";
 
-const ChatScreen = ({ route }) => {
-  const { id, name } = route.params;
+function ChatScreen({ route }) {
+  const { id } = route.params;
 
-  const { data, loading, error } = useQuery(ROOM, {
+  // Get room
+  const { data } = useQuery(GET_ROOM, {
     variables: { id },
   });
+  const messages = data && transformMessages(data.room.messages);
 
-  const messages =
-    data &&
-    data.room.messages.map((message) => {
-      return {
-        _id: message.id,
-        text: message.body,
-        createdAt: message.insertedAt,
-        user: {
-          _id: message.user.id,
-          name: `${message.user.firstName} ${message.user.lastName}`,
-          avatar: "https://placeimg.com/140/140/any",
+  // Send message
+  const [text, setText] = useState("");
+
+  const [sendMessage, { data: newMessageData }] = useMutation(SEND_MESSAGE, {
+    variables: { body: text, roomId: id },
+    update(cache, { data: { sendMessage } }) {
+      cache.modify({
+        id: cache.identify(data.room),
+        fields: {
+          messages(existingMessages) {
+            const newMessage = cache.writeFragment({
+              data: sendMessage,
+              fragment: gql`
+                fragment Message on RoomType {
+                  id
+                  body
+                  insertedAt
+                  user {
+                    id
+                    firstName
+                    lastName
+                  }
+                }
+              `,
+            });
+
+            return [newMessage, ...existingMessages];
+          },
         },
-      };
-    });
+      });
+    },
+  });
 
-  // Sending message
-  const [message, setMessage] = useState({});
-
-  const onSend = useCallback((messages = []) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, messages)
-    );
+  const onSend = useCallback(() => {
+    sendMessage();
   }, []);
 
   return (
     <GiftedChat
       messages={messages}
+      text={text}
+      onInputTextChanged={(text) => setText(text)}
       onSend={(messages) => onSend(messages)}
       user={
         data && {
@@ -67,6 +65,6 @@ const ChatScreen = ({ route }) => {
       }
     />
   );
-};
+}
 
 export default ChatScreen;
