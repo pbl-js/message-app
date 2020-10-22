@@ -26,7 +26,9 @@ const App = () => {
           <Stack.Screen
             name="Chat"
             component={ChatScreen}
-            options={{ title: "Chat room" }}
+            options={({ route }) => ({
+              title: route.params.name,
+            })}
           />
         </Stack.Navigator>
       </NavigationContainer>
